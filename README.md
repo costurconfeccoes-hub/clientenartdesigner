@@ -1,6 +1,6 @@
-# Costur Confecções - Sistema Bem Querida
+# Costur Confecções - Sistema Art Designer
 
-Sistema de gerenciamento para a marca Bem Querida da Costur Confecções.
+Sistema de gerenciamento para a marca Art Designer da Costur Confecções.
 
 ## Funcionalidades
 - Acompanhamento de produção
