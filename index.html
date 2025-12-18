@@ -1063,8 +1063,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <script>
-        // Configuração do Firebase
-        const firebaseConfig = {
+        // ==============================================
+        // CONFIGURAÇÃO DOS DOIS BANCOS DE DADOS FIREBASE
+        // ==============================================
+
+        // 1º BANCO DE DADOS: Notas de Cobrança
+        const firebaseConfigNotas = {
             apiKey: "AIzaSyChK3nnmmyJ-jxwIgRMkmiJ-toonT6oQCA",
             authDomain: "gerador-de-notas-e591f.firebaseapp.com",
             projectId: "gerador-de-notas-e591f",
@@ -1073,11 +1077,7 @@
             appId: "1:700565084876:web:f69a2742868da5255f8069"
         };
 
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        // CONFIGURAÇÃO DO PAINEL DE ACOMPANHAMENTO ART DESIGNER
+        // 2º BANCO DE DADOS: Acompanhamentos de Produção
         const firebaseConfigAcompanhamentos = {
             apiKey: "AIzaSyDRpSahfuooSK37x4pC9Q9fKUZrVLg7szk",
             authDomain: "painel-de-acompanhamento-9b51a.firebaseapp.com",
@@ -1087,16 +1087,29 @@
             appId: "1:441234048828:web:ca4fe2163aa4b469560039"
         };
 
-        // Inicializar segundo app Firebase para acompanhamentos
+        // ==============================================
+        // INICIALIZAR OS DOIS APPS DO FIREBASE
+        // ==============================================
+
+        // App PRINCIPAL (default) - para notas de cobrança
+        const appNotas = firebase.initializeApp(firebaseConfigNotas, "notas");
+        const dbNotas = firebase.firestore(appNotas);
+
+        // App SECUNDÁRIO - para acompanhamentos de produção
         const appAcompanhamentos = firebase.initializeApp(firebaseConfigAcompanhamentos, "acompanhamentos");
         const dbAcompanhamentos = firebase.firestore(appAcompanhamentos);
 
-        // Variáveis globais para acompanhamentos
+        // ==============================================
+        // VARIÁVEIS GLOBAIS
+        // ==============================================
         let todosAcompanhamentos = [];
 
-        // Função para carregar acompanhamentos do Art Designer
+        // ==============================================
+        // FUNÇÕES DO PAINEL DE ACOMPANHAMENTO (BANCO 2)
+        // ==============================================
         async function carregarAcompanhamentosArtDesigner() {
             try {
+                // Usa o SEGUNDO banco de dados (acompanhamentos)
                 const querySnapshot = await dbAcompanhamentos.collection("acompanhamentos").get();
                 todosAcompanhamentos = [];
                 
@@ -1119,20 +1132,21 @@
                     <div class="loading">
                         <i class="fas fa-exclamation-triangle"></i>
                         <p>Erro ao carregar acompanhamentos</p>
+                        <p class="subtext">${error.message}</p>
                     </div>
                 `;
             }
         }
 
-        // Função para exibir acompanhamentos
         function exibirAcompanhamentos(acompanhamentos) {
             const container = document.getElementById('quickViewContainer');
             
             if (acompanhamentos.length === 0) {
                 container.innerHTML = `
-                    <div class="loading">
+                    <div class="empty-state">
                         <i class="fas fa-inbox"></i>
                         <p>Nenhum acompanhamento encontrado para o Art Designer</p>
+                        <p class="subtext">Os acompanhamentos aparecerão aqui quando cadastrados</p>
                     </div>
                 `;
                 return;
@@ -1188,7 +1202,6 @@
             container.innerHTML = html;
         }
 
-        // Função auxiliar para obter classe CSS do status
         function getStatusClass(status) {
             if (!status) return "aguardando";
             if (status === "Aguardando") return "aguardando";
@@ -1197,7 +1210,9 @@
             return "parado";
         }
 
-        // Função para abrir modal de visualização
+        // ==============================================
+        // FUNÇÕES DO MODAL DE VISUALIZAÇÃO
+        // ==============================================
         window.abrirModalVisualizacao = function(id) {
             const acompanhamento = todosAcompanhamentos.find(a => a.id === id);
             if (!acompanhamento) return;
@@ -1206,14 +1221,11 @@
             exibirConteudoVisualizacao(acompanhamento);
         };
 
-        // Função para fechar modal de visualização
         window.fecharModalVisualizacao = function() {
             document.getElementById('visualizacaoModal').style.display = "none";
         };
 
-        // Exibir conteúdo na modal de visualização
         function exibirConteudoVisualizacao(acompanhamento) {
-            // Calcular progresso das etapas
             let etapasRealizadas = 0;
             let totalEtapas = 0;
             if (acompanhamento.etapasStatus) {
@@ -1223,13 +1235,11 @@
             
             const progresso = totalEtapas > 0 ? Math.round((etapasRealizadas / totalEtapas) * 100) : 0;
             
-            // Função para obter texto do status
             function getStatusText(status) {
                 if (!status) return "Aguardando";
                 return status;
             }
             
-            // Função para obter classe de background do status
             function getStatusBgClass(status) {
                 if (!status) return "status-aguardando-bg";
                 if (status === "Aguardando") return "status-aguardando-bg";
@@ -1317,7 +1327,9 @@
             `;
         }
 
-        // Função para calcular o valor total da nota
+        // ==============================================
+        // FUNÇÕES DAS NOTAS DE COBRANÇA (BANCO 1)
+        // ==============================================
         function calcularValorTotal(nota) {
             if (nota.total !== undefined) {
                 return parseFloat(nota.total);
@@ -1336,13 +1348,11 @@
             return total - desconto;
         }
 
-        // Função para determinar o status da nota
         function determinarStatus(nota) {
             if (nota.status) return nota.status.toLowerCase();
             return 'pendente';
         }
 
-        // Função para criar o card da nota (VERSÃO COMPACTA)
         function criarCardNota(nota) {
             const status = determinarStatus(nota);
             const dataFormatada = nota.date ? new Date(nota.date).toLocaleDateString('pt-BR') : 'Data não informada';
@@ -1420,7 +1430,6 @@
             `;
         }
 
-        // Função para criar conteúdo para impressão (sem botão)
         function criarConteudoPrint(nota) {
             const status = determinarStatus(nota);
             const dataFormatada = nota.date ? new Date(nota.date).toLocaleDateString('pt-BR') : 'Data não informada';
@@ -1486,7 +1495,6 @@
             `;
         }
 
-        // Função para expandir/recolher detalhes
         function toggleNotaDetails(notaId) {
             const details = document.getElementById(`details-${notaId}`);
             const toggle = document.querySelector(`[data-nota-id="${notaId}"] .nota-toggle`);
@@ -1495,9 +1503,7 @@
             toggle.classList.toggle('rotated');
         }
 
-        // Função para gerar nome do arquivo
         function gerarNomeArquivo(clientName, valorTotal, data) {
-            // Remove caracteres especiais e espaços
             const nomeLimpo = clientName.replace(/[^a-zA-Z0-9]/g, '_');
             const dataLimpa = data.replace(/\//g, '-');
             const valorLimpo = valorTotal.toFixed(2).replace('.', '_');
@@ -1505,35 +1511,30 @@
             return `nota_${nomeLimpo}_${valorLimpo}_${dataLimpa}.png`;
         }
 
-        // Função para gerar PNG da nota
         function gerarPNG(notaId, clientName, valorTotal, dataFormatada) {
-            // Buscar os dados completos da nota
-            db.collection("invoices")
+            // Usa o PRIMEIRO banco de dados (notas)
+            dbNotas.collection("invoices")
                 .where("id", "==", notaId)
                 .get()
                 .then((querySnapshot) => {
                     if (!querySnapshot.empty) {
                         const nota = querySnapshot.docs[0].data();
                         
-                        // Criar conteúdo para impressão
                         const printContainer = document.getElementById('nota-print');
                         printContainer.innerHTML = criarConteudoPrint(nota);
                         printContainer.style.display = 'block';
 
-                        // Gerar PNG
                         html2canvas(printContainer, {
                             scale: 2,
                             backgroundColor: '#ffffff',
                             useCORS: true
                         }).then(canvas => {
-                            // Criar link de download
                             const link = document.createElement('a');
                             const fileName = gerarNomeArquivo(clientName, valorTotal, dataFormatada);
                             link.download = fileName;
                             link.href = canvas.toDataURL('image/png');
                             link.click();
                             
-                            // Limpar container
                             printContainer.innerHTML = '';
                             printContainer.style.display = 'none';
                         }).catch(error => {
@@ -1549,9 +1550,12 @@
                 });
         }
 
-        // Função para carregar e separar as notas do ART DESIGNER
+        // ==============================================
+        // CARREGAR NOTAS DO FIREBASE (BANCO 1)
+        // ==============================================
         function carregarNotasArtDesigner() {
-            db.collection("invoices")
+            // Usa o PRIMEIRO banco de dados (notas)
+            dbNotas.collection("invoices")
                 .where("clientName", "==", "ART DESIGNER")
                 .get()
                 .then((querySnapshot) => {
@@ -1585,11 +1589,9 @@
                         }
                     });
 
-                    // Ordenar por data (mais recente primeiro)
                     notasPendentes.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
                     notasHistorico.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
-                    // Exibir nota atual (pendente)
                     if (notasPendentes.length > 0) {
                         let htmlPendentes = '';
                         notasPendentes.forEach(nota => {
@@ -1606,7 +1608,6 @@
                         `;
                     }
 
-                    // Exibir histórico (pago e cancelado)
                     if (notasHistorico.length > 0) {
                         let htmlHistorico = '';
                         notasHistorico.forEach(nota => {
@@ -1629,26 +1630,44 @@
                         <div class="empty-state">
                             <i class="fas fa-exclamation-triangle"></i>
                             <p>Erro ao carregar notas</p>
+                            <p class="subtext">${error.message}</p>
                         </div>
                     `;
                     document.getElementById('historico-notas').innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-exclamation-triangle"></i>
                             <p>Erro ao carregar histórico</p>
+                            <p class="subtext">${error.message}</p>
                         </div>
                     `;
                 });
         }
 
-        // Carregar tudo quando a página carregar
+        // ==============================================
+        // INICIALIZAÇÃO DA APLICAÇÃO
+        // ==============================================
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Aplicação iniciada - Costur Confecções Art Designer');
+            console.log('✅ Conectado a 2 bancos de dados Firebase');
+            console.log('📊 Banco 1: Notas de Cobrança');
+            console.log('📈 Banco 2: Acompanhamentos de Produção');
+            
+            // Carregar dados inicialmente
             carregarAcompanhamentosArtDesigner();
             carregarNotasArtDesigner();
+            
+            // Configurar atualizações automáticas
+            setInterval(carregarAcompanhamentosArtDesigner, 30000);
+            setInterval(carregarNotasArtDesigner, 30000);
+            
+            // Fechar modal ao clicar fora
+            window.onclick = function(event) {
+                const modal = document.getElementById('visualizacaoModal');
+                if (event.target == modal) {
+                    fecharModalVisualizacao();
+                }
+            };
         });
-
-        // Atualizar automaticamente a cada 30 segundos
-        setInterval(carregarAcompanhamentosArtDesigner, 30000);
-        setInterval(carregarNotasArtDesigner, 30000);
     </script>
 </body>
 </html>
