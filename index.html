@@ -24,6 +24,8 @@
             --success: #2ecc71;
             --warning: #f39c12;
             --danger: #e74c3c;
+            --holiday: #e74c3c;
+            --optional: #e67e22;
         }
 
         body {
@@ -207,63 +209,6 @@
         .floating-btn:hover {
             background-color: #2980b9;
             transform: scale(1.1);
-        }
-        
-        .ribana-section {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            margin-bottom: 25px;
-            overflow: hidden;
-        }
-        
-        .ribana-title {
-            background-color: var(--primary);
-            color: white;
-            padding: 15px 20px;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-        }
-        
-        .ribana-title i {
-            margin-right: 10px;
-            font-size: 1.2rem;
-        }
-        
-        .ribana-btn {
-            display: block;
-            width: 100%;
-            margin: 0;
-            background-color: var(--secondary);
-            color: white;
-            border: none;
-            padding: 20px;
-            border-radius: 0;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-            text-align: center;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-        
-        .ribana-btn:hover {
-            background-color: #2980b9;
-            transform: translateY(-3px);
-        }
-        
-        .ribana-description {
-            padding: 15px 20px;
-            background-color: var(--light);
-            color: var(--text);
-            font-size: 0.95rem;
-            text-align: center;
-            border-top: 1px solid #ddd;
         }
         
         footer {
@@ -515,15 +460,15 @@
         .quick-view-container {
             display: flex;
             flex-direction: column;
-            gap: 0; /* SEM ESPAÇO ENTRE OS ITENS */
+            gap: 0;
         }
 
         .quick-view-item {
             background-color: white;
             padding: 8px 10px;
-            border-bottom: 1px solid #eee; /* Linha divisória sutil */
+            border-bottom: 1px solid #eee;
             transition: all 0.2s ease;
-            min-height: 60px; /* Altura bem reduzida */
+            min-height: 60px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -901,11 +846,6 @@
                 justify-content: flex-start;
             }
             
-            .ribana-btn {
-                font-size: 1.1rem;
-                padding: 15px;
-            }
-            
             .modal-visualizacao-content {
                 width: 90%;
                 margin: 10% auto;
@@ -953,8 +893,9 @@
             </div>
         </div>
     </header>
+    
 
- <title>Calendário e Histórico de Agendamentos</title>
+    <title>Calendário e Histórico de Agendamentos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -981,6 +922,8 @@
             --admin-color: #8e44ad;
             --completed-color: #27ae60;
             --in-production-color: #3498db;
+            --holiday-color: #e74c3c;
+            --optional-color: #e67e22;
         }
 
         body {
@@ -1060,12 +1003,19 @@
             font-weight: 500;
             transition: all 0.2s;
             color: #000;
+            position: relative;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
         
         .calendar-day.header {
             font-weight: bold;
             background-color: #f0f0f0;
             color: var(--dark);
+            min-height: 40px;
         }
         
         .calendar-day.available {
@@ -1105,6 +1055,59 @@
             font-weight: bold;
             background-color: #fff9e6;
             color: #000;
+        }
+        
+        /* Estilos para feriados */
+        .calendar-day.holiday {
+            background-color: var(--holiday-color);
+            color: white;
+            font-weight: bold;
+            cursor: default;
+        }
+        
+        .calendar-day.holiday::after {
+            content: '🛑';
+            font-size: 0.7rem;
+            position: absolute;
+            bottom: 2px;
+        }
+        
+        /* Estilos para dias facultativos */
+        .calendar-day.optional {
+            background-color: var(--optional-color);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .calendar-day.optional:hover {
+            background-color: #d35400;
+            transform: scale(1.05);
+        }
+        
+        .calendar-day.optional::after {
+            content: '❓';
+            font-size: 0.7rem;
+            position: absolute;
+            bottom: 2px;
+        }
+        
+        /* Tooltip para mostrar descrição do feriado */
+        .calendar-day.holiday:hover::before,
+        .calendar-day.optional:hover::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 100;
+            margin-bottom: 5px;
         }
         
         .appointments-list {
@@ -1238,6 +1241,12 @@
                 width: 100%;
                 justify-content: flex-end;
             }
+            
+            .calendar-day {
+                padding: 8px 3px;
+                font-size: 0.85rem;
+                min-height: 50px;
+            }
         }
 
         @media (max-width: 576px) {
@@ -1251,8 +1260,15 @@
             }
             
             .calendar-day {
-                padding: 8px 3px;
-                font-size: 0.85rem;
+                padding: 6px 2px;
+                font-size: 0.8rem;
+                min-height: 45px;
+            }
+            
+            .calendar-day.holiday::after,
+            .calendar-day.optional::after {
+                font-size: 0.6rem;
+                bottom: 1px;
             }
         }
     </style>
@@ -1260,7 +1276,7 @@
 <body>
     <div class="container">
         <div class="card">
-            <h2><i class="fas fa-calendar-alt"></i> Calendário de Disponibilidade</h2>
+            <h2><i class="fas fa-calendar-alt"></i> Calendário de Disponibilidade 2026</h2>
             <div class="calendar-container">
                 <div class="calendar">
                     <div class="calendar-header" id="current-month">Carregando...</div>
@@ -1281,6 +1297,14 @@
                         <div class="legend-item">
                             <div class="legend-color" style="background-color: var(--secondary);"></div>
                             <span>Período ocupado (ART DESIGNER)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--holiday-color);"></div>
+                            <span>Feriado - Indisponível</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--optional-color);"></div>
+                            <span>Facultativo - Consulte disponibilidade</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-color" style="background-color: #ccc;"></div>
@@ -1346,6 +1370,27 @@
         let currentMonth = currentDate.getMonth();
         let currentYear = currentDate.getFullYear();
         const CLIENTE_FILTRO = "ART DESIGNER";
+
+        // ============================
+        // DATAS DE FERIADOS 2026
+        // ============================
+        const feriados2026 = [
+            // Feriados fixos (vermelho - indisponível)
+            {date: '2026-01-01', description: 'Ano Novo', type: 'holiday'},
+            {date: '2026-03-06', description: 'Dia de Pernambuco', type: 'holiday'},
+            {date: '2026-04-03', description: 'Sexta-Feira Santa', type: 'holiday'},
+            {date: '2026-04-21', description: 'Tiradentes', type: 'holiday'},
+            {date: '2026-05-01', description: 'Dia do Trabalho', type: 'holiday'},
+            {date: '2026-05-18', description: 'Aniversário de Caruaru', type: 'holiday'},
+            {date: '2026-06-04', description: 'Corpus Christi', type: 'holiday'},
+            {date: '2026-06-24', description: 'Dia de São João', type: 'holiday'},
+            {date: '2026-09-15', description: 'Nossa Senhora das Dores', type: 'holiday'},
+            
+            // Dias facultativos (laranja - indisponível)
+            {date: '2026-02-16', description: 'Segunda de Carnaval (facultativo)', type: 'optional'},
+            {date: '2026-02-17', description: 'Terça de Carnaval (facultativo)', type: 'optional'},
+            {date: '2026-02-18', description: 'Quarta-feira de Cinzas (facultativo até meio-dia)', type: 'optional'}
+        ];
 
         // ============================
         // FUNÇÕES AUXILIARES CORRIGIDAS
@@ -1432,6 +1477,18 @@
             }
         }
 
+        // Função para verificar se uma data é feriado
+        function verificarFeriado(year, month, day) {
+            const dateKey = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+            
+            for (const feriado of feriados2026) {
+                if (feriado.date === dateKey) {
+                    return feriado;
+                }
+            }
+            return null;
+        }
+
         // ============================
         // FUNÇÕES DO FIREBASE
         // ============================
@@ -1478,7 +1535,7 @@
         }
 
         // ============================
-        // FUNÇÕES DO CALENDÁRIO
+        // FUNÇÕES DO CALENDÁRIO COM FERIADOS
         // ============================
         function generateCalendar(month, year) {
             try {
@@ -1495,14 +1552,17 @@
                 const dayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
                 let calendarHTML = '';
                 
+                // Cabeçalhos dos dias da semana
                 dayNames.forEach(day => {
                     calendarHTML += `<div class="calendar-day header">${day}</div>`;
                 });
                 
+                // Dias vazios no início do mês
                 for (let i = 0; i < firstDay; i++) {
                     calendarHTML += `<div class="calendar-day unavailable"></div>`;
                 }
                 
+                // Dias do mês
                 for (let day = 1; day <= daysInMonth; day++) {
                     const dateKey = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
                     const currentDateObj = new Date(year, month, day);
@@ -1512,24 +1572,43 @@
                     currentDateObj.setHours(0, 0, 0, 0);
                     
                     let dayClass = "calendar-day available";
+                    let tooltip = "";
                     
-                    if (currentDateObj < todayObj) {
+                    // Verificar se é feriado
+                    const feriado = verificarFeriado(year, month, day);
+                    if (feriado) {
+                        if (feriado.type === 'holiday') {
+                            dayClass = "calendar-day holiday";
+                        } else if (feriado.type === 'optional') {
+                            dayClass = "calendar-day optional";
+                        }
+                        tooltip = feriado.description;
+                    }
+                    // Verificar se já passou
+                    else if (currentDateObj < todayObj) {
                         dayClass = "calendar-day past-day";
                     }
                     
+                    // Verificar se está ocupado
                     if (bookedDates[dateKey]) {
                         if (dayClass.includes("past-day")) {
                             dayClass = "calendar-day past-day booked";
-                        } else {
+                        } else if (!feriado) { // Não sobrepõe feriados
                             dayClass = "calendar-day booked";
                         }
                     }
                     
+                    // Verificar se é hoje
                     if (day === currentDay && month === currentMonthToday && year === currentYearToday) {
-                        dayClass = "calendar-day today";
+                        if (!feriado) { // Não sobrepõe feriados
+                            dayClass = "calendar-day today";
+                        }
                     }
                     
-                    calendarHTML += `<div class="${dayClass}" data-day="${day}" data-month="${month}" data-year="${year}">${day}</div>`;
+                    // Adicionar tooltip se for feriado
+                    const tooltipAttr = tooltip ? `data-tooltip="${tooltip}"` : '';
+                    
+                    calendarHTML += `<div class="${dayClass}" ${tooltipAttr} data-day="${day}" data-month="${month}" data-year="${year}">${day}</div>`;
                 }
                 
                 document.getElementById('calendar-days').innerHTML = calendarHTML;
@@ -1690,7 +1769,7 @@
         // ============================
         // API PARA USO EXTERNO
         // ============================
-        window.agendamentosBemQuerida = {
+        window.agendamentosArtDesigner = {
             recarregarAgendamentos: function() {
                 loadAppointmentsFromFirebase();
             },
@@ -1705,9 +1784,10 @@
         };
 
     </script>
+
     
     <div class="container">
-        <!-- PAINEL DE ACOMPANHAMENTO ART DESIGNER (NOVO) -->
+        <!-- PAINEL DE ACOMPANHAMENTO ART DESIGNER -->
         <section class="panel-section">
             <div class="section-title">
                 <i class="fas fa-tasks"></i>
@@ -1768,21 +1848,6 @@
                 </div>
             </div>
         </section>
-        
-        <!-- SEÇÃO PARA O BOTÃO DE CÁLCULO DE RIBANA -->
-        <section class="ribana-section">
-            <div class="ribana-title">
-                <i class="fas fa-calculator"></i>
-                Ferramentas de Cálculo
-            </div>
-            <a href="https://costurconfeccoes-hub.github.io/calculodeapoioartdesigner/" class="ribana-btn" target="_blank">
-                <i class="fas fa-ruler-combined"></i>
-                Cálculo para corte de ribana
-            </a>
-            <div class="ribana-description">
-                Ferramenta para auxiliar no cálculo preciso de cortes de ribana para suas confecções
-            </div>
-        </section>
     </div>
 
     <!-- Container oculto para gerar PNG -->
@@ -1800,7 +1865,7 @@
         </div>
     </div>
     
-    <a href="https://call.doorvi.co/en/home/a582975f330bac0b10d743d0931107300a5a0ed05c06a40e1efce2c9961b671bc01f98b52109d1d0eff5010ed23dcf158baaef6c5f8cfde913c9f7c232ce47ba" class="floating-btn" target="_blank">
+    <a href="https://wa.me/+5581994016093" class="floating-btn" target="_blank">
         <i class="fas fa-bell"></i>
     </a>
     
@@ -1842,14 +1907,55 @@
         // ==============================================
         // INICIALIZAR OS DOIS APPS DO FIREBASE
         // ==============================================
+        
+        let appNotas = null;
+        let dbNotas = null;
+        let appAcompanhamentos = null;
+        let dbAcompanhamentos = null;
+        let firebaseInitialized = false;
 
-        // App PRINCIPAL (default) - para notas de cobrança
-        const appNotas = firebase.initializeApp(firebaseConfigNotas, "notas");
-        const dbNotas = firebase.firestore(appNotas);
-
-        // App SECUNDÁRIO - para acompanhamentos de produção
-        const appAcompanhamentos = firebase.initializeApp(firebaseConfigAcompanhamentos, "acompanhamentos");
-        const dbAcompanhamentos = firebase.firestore(appAcompanhamentos);
+        function initializeFirebase() {
+            try {
+                console.log("🚀 Inicializando Firebase...");
+                
+                // Verificar se o Firebase já foi carregado
+                if (typeof firebase === 'undefined') {
+                    console.error("❌ Firebase não foi carregado. Verifique a conexão com a internet.");
+                    return false;
+                }
+                
+                // Verificar se já temos apps inicializados
+                const apps = firebase.apps;
+                
+                // Inicializar primeiro app (Notas)
+                if (!apps.find(app => app.name === "notas")) {
+                    appNotas = firebase.initializeApp(firebaseConfigNotas, "notas");
+                    console.log("✅ Firebase Notas inicializado");
+                } else {
+                    appNotas = firebase.app("notas");
+                    console.log("✅ Firebase Notas já estava inicializado");
+                }
+                dbNotas = firebase.firestore(appNotas);
+                
+                // Inicializar segundo app (Acompanhamentos)
+                if (!apps.find(app => app.name === "acompanhamentos")) {
+                    appAcompanhamentos = firebase.initializeApp(firebaseConfigAcompanhamentos, "acompanhamentos");
+                    console.log("✅ Firebase Acompanhamentos inicializado");
+                } else {
+                    appAcompanhamentos = firebase.app("acompanhamentos");
+                    console.log("✅ Firebase Acompanhamentos já estava inicializado");
+                }
+                dbAcompanhamentos = firebase.firestore(appAcompanhamentos);
+                
+                firebaseInitialized = true;
+                console.log("🎉 Firebase inicializado com sucesso!");
+                return true;
+                
+            } catch (error) {
+                console.error("❌ Erro ao inicializar Firebase:", error);
+                return false;
+            }
+        }
 
         // ==============================================
         // VARIÁVEIS GLOBAIS
@@ -1861,6 +1967,20 @@
         // ==============================================
         async function carregarAcompanhamentosArtDesigner() {
             try {
+                // Verificar se o Firebase está inicializado
+                if (!firebaseInitialized) {
+                    const initialized = initializeFirebase();
+                    if (!initialized) {
+                        document.getElementById('quickViewContainer').innerHTML = `
+                            <div class="loading">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>Erro ao conectar com o banco de dados</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                }
+                
                 // Usa o SEGUNDO banco de dados (acompanhamentos)
                 const querySnapshot = await dbAcompanhamentos.collection("acompanhamentos").get();
                 todosAcompanhamentos = [];
@@ -1885,6 +2005,9 @@
                         <i class="fas fa-exclamation-triangle"></i>
                         <p>Erro ao carregar acompanhamentos</p>
                         <p class="subtext">${error.message}</p>
+                        <button onclick="carregarAcompanhamentosArtDesigner()" style="margin-top: 15px; padding: 5px 10px; background: var(--secondary); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="fas fa-redo"></i> Tentar novamente
+                        </button>
                     </div>
                 `;
             }
@@ -2264,6 +2387,12 @@
         }
 
         function gerarPNG(notaId, clientName, valorTotal, dataFormatada) {
+            // Verificar se o Firebase está inicializado
+            if (!firebaseInitialized || !dbNotas) {
+                alert("Erro: Banco de dados não está disponível. Tente recarregar a página.");
+                return;
+            }
+            
             // Usa o PRIMEIRO banco de dados (notas)
             dbNotas.collection("invoices")
                 .where("id", "==", notaId)
@@ -2294,11 +2423,13 @@
                             alert('Erro ao gerar a imagem da nota. Tente novamente.');
                             printContainer.style.display = 'none';
                         });
+                    } else {
+                        alert('Nota não encontrada no banco de dados.');
                     }
                 })
                 .catch(error => {
                     console.error('Erro ao buscar nota:', error);
-                    alert('Erro ao carregar dados da nota.');
+                    alert('Erro ao carregar dados da nota: ' + error.message);
                 });
         }
 
@@ -2306,6 +2437,29 @@
         // CARREGAR NOTAS DO FIREBASE (BANCO 1)
         // ==============================================
         function carregarNotasArtDesigner() {
+            // Verificar se o Firebase está inicializado
+            if (!firebaseInitialized) {
+                const initialized = initializeFirebase();
+                if (!initialized) {
+                    document.getElementById('nota-atual').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Erro ao conectar com o banco de dados</p>
+                            <button onclick="carregarNotasArtDesigner()" style="margin-top: 15px; padding: 5px 10px; background: var(--secondary); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                <i class="fas fa-redo"></i> Tentar novamente
+                            </button>
+                        </div>
+                    `;
+                    document.getElementById('historico-notas').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Erro ao conectar com o banco de dados</p>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+            
             // Usa o PRIMEIRO banco de dados (notas)
             dbNotas.collection("invoices")
                 .where("clientName", "==", "ART DESIGNER")
@@ -2383,6 +2537,9 @@
                             <i class="fas fa-exclamation-triangle"></i>
                             <p>Erro ao carregar notas</p>
                             <p class="subtext">${error.message}</p>
+                            <button onclick="carregarNotasArtDesigner()" style="margin-top: 15px; padding: 5px 10px; background: var(--secondary); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                <i class="fas fa-redo"></i> Tentar novamente
+                            </button>
                         </div>
                     `;
                     document.getElementById('historico-notas').innerHTML = `
@@ -2400,17 +2557,22 @@
         // ==============================================
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Aplicação iniciada - Costur Confecções Art Designer');
-            console.log('✅ Conectado a 2 bancos de dados Firebase');
-            console.log('📊 Banco 1: Notas de Cobrança');
-            console.log('📈 Banco 2: Acompanhamentos de Produção');
             
-            // Carregar dados inicialmente
-            carregarAcompanhamentosArtDesigner();
-            carregarNotasArtDesigner();
+            // Inicializar Firebase
+            const firebaseInitSuccess = initializeFirebase();
             
-            // Configurar atualizações automáticas
-            setInterval(carregarAcompanhamentosArtDesigner, 30000);
-            setInterval(carregarNotasArtDesigner, 30000);
+            if (firebaseInitSuccess) {
+                console.log('✅ Conectado a 2 bancos de dados Firebase');
+                console.log('📊 Banco 1: Notas de Cobrança');
+                console.log('📈 Banco 2: Acompanhamentos de Produção');
+                
+                // Carregar dados inicialmente
+                carregarAcompanhamentosArtDesigner();
+                carregarNotasArtDesigner();
+                
+            } else {
+                console.error('❌ Falha ao inicializar Firebase');
+            }
             
             // Fechar modal ao clicar fora
             window.onclick = function(event) {
@@ -2423,4 +2585,3 @@
     </script>
 </body>
 </html>
-
